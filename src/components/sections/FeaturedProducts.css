@@ -1,0 +1,246 @@
+.featured-products-section {
+  padding: 3.5rem 0 4rem;
+  background-color: var(--surface-color);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+}
+
+.section-header .section-title {
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.section-header .section-title::after {
+  margin: 0.4rem 0 0 0;
+}
+
+.view-all-link {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.view-all-link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* CAROUSEL WRAPPER WITH FLOATING SIDE BUTTONS */
+.featured-carousel-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* NÚT ĐIỀU HƯỚNG 2 ĐẦU DANH SÁCH (SIDE BUTTONS) */
+.carousel-side-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background-color: var(--surface-color, #ffffff);
+  color: var(--text-primary, #0f172a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.carousel-side-btn.left {
+  left: -22px;
+}
+
+.carousel-side-btn.right {
+  right: -22px;
+}
+
+/* HIỆU ỨNG HOVER NÚT 2 ĐẦU */
+.carousel-side-btn:hover:not(.disabled) {
+  background: var(--primary-gradient, linear-gradient(135deg, #1578E9 0%, #0c4ea3 100%));
+  color: #ffffff;
+  border-color: transparent;
+  transform: translateY(-50%) scale(1.12);
+  box-shadow: 0 6px 20px rgba(21, 120, 233, 0.4);
+}
+
+.carousel-side-btn:active:not(.disabled) {
+  transform: translateY(-50%) scale(0.98);
+}
+
+.carousel-side-btn.disabled {
+  opacity: 0;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* SINGLE ROW HORIZONTAL SCROLL CAROUSEL CONTAINER */
+.featured-scroll-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  padding: 10px 4px 18px 4px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE & Edge */
+}
+
+.featured-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.featured-carousel-card {
+  flex: 0 0 calc((100% - 4 * 1.25rem) / 5); /* 5 cards per row on desktop */
+  min-width: 210px;
+  scroll-snap-align: start;
+}
+
+.product-card {
+  background-color: var(--surface-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+.product-img-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: var(--border-subtle);
+}
+
+/* Badges Container for ALL tags */
+.product-badges-container {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  z-index: 5;
+  max-width: calc(100% - 16px);
+}
+
+.badge {
+  position: static;
+  display: inline-block;
+  padding: 0.22rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  border-radius: var(--radius-xs, 4px);
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+}
+
+.badge-new {
+  background-color: var(--primary-color, #1578E9);
+}
+
+.badge-hot {
+  background-color: #ef4444;
+}
+
+.badge-featured {
+  background-color: #f59e0b;
+}
+
+.badge-default {
+  background-color: #6366f1;
+}
+
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.06);
+}
+
+.product-details {
+  padding: 1rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.product-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.product-weight {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* RESPONSIVE CAROUSEL & SIDE BUTTONS */
+@media (max-width: 1200px) {
+  .featured-carousel-card {
+    flex: 0 0 calc((100% - 3 * 1.25rem) / 4);
+    min-width: 190px;
+  }
+}
+
+@media (max-width: 900px) {
+  .featured-carousel-card {
+    flex: 0 0 calc((100% - 2 * 1rem) / 3);
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 640px) {
+  .carousel-side-btn.left {
+    left: 4px;
+  }
+
+  .carousel-side-btn.right {
+    right: 4px;
+  }
+
+  .featured-carousel-card {
+    flex: 0 0 calc((100% - 1rem) / 2.15);
+    min-width: 150px;
+  }
+
+  .featured-scroll-container {
+    gap: 0.85rem;
+  }
+}

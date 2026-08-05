@@ -1,17 +1,47 @@
 import React from 'react';
 import { MainLayout } from '../layouts/MainLayout';
+import { HeroSection } from '../components/sections/HeroSection';
+import { CategorySection } from '../components/sections/CategorySection';
+import { FeaturedProducts } from '../components/sections/FeaturedProducts';
+import { AboutUsSection } from '../components/sections/AboutUsSection';
+import { ContactSection } from '../components/sections/ContactSection';
 
-export const HomePage = () => {
+export const HomePage = ({
+  productsList = [],
+  categoriesList = [],
+  onNavigateHome,
+  onNavigateProducts,
+  onNavigateAdmin,
+}) => {
   return (
-    <MainLayout>
-      <section style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: '#38bdf8' }}>
-          Chào mừng tới Dự án Web Chuẩn
-        </h1>
-        <p style={{ fontSize: '1.2rem', color: '#94a3b8', maxWidth: '600px', margin: '0 auto 2rem' }}>
-          Cấu trúc thư mục được thiết kế theo nguyên tắc Feature-First Architecture, giúp dự án dễ đọc, dễ mở rộng và dễ bảo trì.
-        </p>
-      </section>
+    <MainLayout
+      onNavigateHome={onNavigateHome}
+      onNavigateProducts={onNavigateProducts}
+      onNavigateAdmin={onNavigateAdmin}
+      activePage="home"
+    >
+      <HeroSection
+        onExploreProducts={() => {
+          if (onNavigateProducts) onNavigateProducts('');
+        }}
+      />
+      <CategorySection
+        categoriesList={categoriesList}
+        productsList={productsList}
+        onSelectCategory={(catTitle) => {
+          if (onNavigateProducts) onNavigateProducts(catTitle);
+        }}
+      />
+      <FeaturedProducts
+        productsList={productsList}
+        onViewAll={() => {
+          if (onNavigateProducts) onNavigateProducts('');
+        }}
+      />
+      <AboutUsSection />
+      <ContactSection />
     </MainLayout>
   );
 };
+
+export default HomePage;

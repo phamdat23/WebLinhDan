@@ -1,0 +1,8 @@
+.read-only-input {
+  background-color: var(--background-color, #f8fafc) !important;
+  color: var(--text-muted, #64748b) !important;
+  cursor: not-allowed !important;
+  border-color: var(--border-subtle, #cbd5e1) !important;
+  font-family: monospace;
+  font-weight: 600;
+}
