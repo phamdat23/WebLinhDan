@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TAGS_LIST } from '../../utils/productsData';
-import { X, Upload, Image as ImageIcon, Save } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, Save, Plus, Trash2, Star } from 'lucide-react';
 import './ProductFormModal.css';
 
 const DEFAULT_CATEGORIES = [
@@ -32,10 +32,11 @@ export const ProductFormModal = ({
     weight: 'Gói 250g / 500g',
     status: 'Còn hàng',
     tags: ['Mới về'],
-    image: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80',
+    images: ['https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'],
+    description: '',
   });
 
-  const [imagePreview, setImagePreview] = useState('https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80');
+  const [newImageUrl, setNewImageUrl] = useState('');
   const [errors, setErrors] = useState({});
 
   // Reset or fill form safely whenever editingProduct or isOpen changes
@@ -44,15 +45,25 @@ export const ProductFormModal = ({
 
     if (editingProduct) {
       const existingTags = Array.isArray(editingProduct.tags) ? [...editingProduct.tags] : [];
+      let existingImages = [];
+      if (Array.isArray(editingProduct.images) && editingProduct.images.length > 0) {
+        existingImages = [...editingProduct.images];
+      } else if (editingProduct.image) {
+        existingImages = [editingProduct.image];
+      }
+      if (existingImages.length === 0) {
+        existingImages = ['https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'];
+      }
+
       setFormData({
         name: editingProduct.name || '',
         category: editingProduct.category || safeCategories[0] || 'Hạt dinh dưỡng',
         weight: editingProduct.weight || 'Gói 250g / 500g',
         status: editingProduct.status || 'Còn hàng',
         tags: existingTags,
-        image: editingProduct.image || '',
+        images: existingImages,
+        description: editingProduct.description || '',
       });
-      setImagePreview(editingProduct.image || '');
     } else {
       setFormData({
         name: '',
@@ -60,10 +71,11 @@ export const ProductFormModal = ({
         weight: 'Gói 250g / 500g',
         status: 'Còn hàng',
         tags: ['Mới về'],
-        image: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80',
+        images: ['https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'],
+        description: '',
       });
-      setImagePreview('https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80');
     }
+    setNewImageUrl('');
     setErrors({});
   }, [editingProduct, isOpen]);
 
@@ -102,12 +114,16 @@ export const ProductFormModal = ({
           const lightweightBase64 = canvas.toDataURL('image/jpeg', 0.6);
           console.log(`⚡ [Form Modal] Ultra-lightweight Base64 generated (~${(lightweightBase64.length / 1024).toFixed(1)} KB).`);
 
-          setFormData((prev) => ({ ...prev, image: lightweightBase64 }));
-          setImagePreview(lightweightBase64);
+          setFormData((prev) => ({
+            ...prev,
+            images: [...prev.images, lightweightBase64],
+          }));
         };
         img.onerror = () => {
-          setFormData((prev) => ({ ...prev, image: event.target.result }));
-          setImagePreview(event.target.result);
+          setFormData((prev) => ({
+            ...prev,
+            images: [...prev.images, event.target.result],
+          }));
         };
         img.src = event.target.result;
       };
@@ -115,11 +131,37 @@ export const ProductFormModal = ({
     }
   };
 
-  // Handle URL change
-  const handleUrlChange = (e) => {
-    const url = e.target.value;
-    setFormData((prev) => ({ ...prev, image: url }));
-    setImagePreview(url);
+  // Add image URL from input
+  const handleAddImageUrl = () => {
+    if (newImageUrl.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, newImageUrl.trim()],
+      }));
+      setNewImageUrl('');
+    }
+  };
+
+  // Remove image from list
+  const handleRemoveImage = (index) => {
+    setFormData((prev) => {
+      const updated = prev.images.filter((_, idx) => idx !== index);
+      return {
+        ...prev,
+        images: updated.length > 0 ? updated : ['https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'],
+      };
+    });
+  };
+
+  // Set primary image (move to position 0)
+  const handleSetPrimary = (index) => {
+    if (index === 0) return;
+    setFormData((prev) => {
+      const updated = [...prev.images];
+      const [selected] = updated.splice(index, 1);
+      updated.unshift(selected);
+      return { ...prev, images: updated };
+    });
   };
 
   // Toggle Tag selection safely
@@ -153,10 +195,16 @@ export const ProductFormModal = ({
       return;
     }
 
+    const finalImages = formData.images.length > 0
+      ? formData.images
+      : ['https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'];
+
     const payload = {
       ...editingProduct,
       ...formData,
-      image: formData.image || 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80',
+      images: finalImages,
+      image: finalImages[0], // preserving single image backward compatibility
+      description: formData.description || '',
     };
 
     console.log('🚀 [Form Modal] Closing dialog instantly and executing onSave payload...');
@@ -164,7 +212,7 @@ export const ProductFormModal = ({
     // 1. Tắt dialog ngay lập tức khi ấn lưu
     onClose();
 
-    // 2. Gửi dữ liệu sản phẩm chứa chuỗi Base64 siêu nhẹ lên Firebase
+    // 2. Gửi dữ liệu sản phẩm lên Firebase
     if (onSave) {
       onSave(payload);
     }
@@ -279,43 +327,93 @@ export const ProductFormModal = ({
             </div>
           </div>
 
-          {/* Hình ảnh */}
+          {/* Danh sách Hình ảnh (Multi-image management) */}
           <div className="form-field">
-            <label className="field-label">Hình ảnh sản phẩm</label>
-            <div className="image-upload-wrapper">
-              <div className="image-preview-box">
-                {imagePreview ? (
-                  <img src={imagePreview} alt="Preview" className="preview-img" />
-                ) : (
-                  <div className="preview-placeholder">
-                    <ImageIcon size={32} />
-                    <span>Chưa chọn ảnh</span>
+            <label className="field-label">Hình ảnh sản phẩm (Có thể thêm nhiều ảnh)</label>
+
+            {/* Thumbnail list of added images */}
+            <div className="multi-images-preview-list">
+              {formData.images.map((imgUrl, idx) => (
+                <div key={idx} className={`multi-image-thumb-box ${idx === 0 ? 'is-primary' : ''}`}>
+                  <img src={imgUrl} alt={`Thumb ${idx + 1}`} className="thumb-img" />
+                  {idx === 0 && <span className="primary-badge">Ảnh chính</span>}
+                  
+                  <div className="thumb-actions-overlay">
+                    {idx !== 0 && (
+                      <button
+                        type="button"
+                        className="thumb-action-btn set-primary"
+                        onClick={() => handleSetPrimary(idx)}
+                        title="Đặt làm ảnh chính"
+                      >
+                        <Star size={13} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="thumb-action-btn remove"
+                      onClick={() => handleRemoveImage(idx)}
+                      title="Xóa ảnh"
+                    >
+                      <Trash2 size={13} />
+                    </button>
                   </div>
-                )}
-              </div>
+                </div>
+              ))}
+            </div>
 
+            {/* Controls to add images */}
+            <div className="image-upload-wrapper">
               <div className="image-inputs-col">
-                <label className="file-upload-btn">
-                  <Upload size={16} /> Chọn ảnh từ thiết bị
+                <div className="file-upload-row">
+                  <label className="file-upload-btn">
+                    <Upload size={16} /> Chọn ảnh từ thiết bị
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                  <span className="divider-text">hoặc thêm URL ảnh:</span>
+                </div>
+
+                <div className="url-add-row">
                   <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    style={{ display: 'none' }}
+                    type="text"
+                    className="form-input"
+                    placeholder="https://images.unsplash.com/..."
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddImageUrl();
+                      }
+                    }}
                   />
-                </label>
-
-                <span className="divider-text">hoặc dán đường dẫn ảnh:</span>
-
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="https://images.unsplash.com/..."
-                  value={formData.image}
-                  onChange={handleUrlChange}
-                />
+                  <button
+                    type="button"
+                    className="add-url-btn"
+                    onClick={handleAddImageUrl}
+                  >
+                    <Plus size={16} /> Thêm ảnh
+                  </button>
+                </div>
               </div>
             </div>
+          </div>
+
+          {/* Mô tả sản phẩm (Description) */}
+          <div className="form-field">
+            <label className="field-label">Mô tả sản phẩm</label>
+            <textarea
+              className="form-textarea"
+              rows={4}
+              placeholder="Nhập thông tin chi tiết, xuất xứ, công dụng, hướng dẫn sử dụng sản phẩm..."
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
           </div>
 
           {/* Footer Buttons */}

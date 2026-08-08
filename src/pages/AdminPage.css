@@ -718,14 +718,85 @@
   color: #1e293b;
 }
 
-.confirm-btn.delete {
-  background-color: #ef4444;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
 .confirm-btn.delete:hover {
   background-color: #dc2626;
   box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
   transform: translateY(-1px);
+}
+
+/* ADMIN PAGINATION STYLING */
+.admin-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  background-color: var(--surface-color, #ffffff);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-pagination-info {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #475569);
+  font-weight: 500;
+}
+
+.admin-pagination-info strong {
+  color: var(--text-primary, #0f172a);
+  font-weight: 700;
+}
+
+.admin-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.825rem;
+  font-weight: 700;
+  border-radius: var(--radius-xs, 6px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  background-color: var(--surface-color, #ffffff);
+  color: var(--text-secondary, #475569);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 34px;
+  height: 34px;
+}
+
+.admin-pagination-btn:hover:not(:disabled) {
+  border-color: var(--primary-color, #1578E9);
+  color: var(--primary-color, #1578E9);
+  background-color: var(--primary-subtle, #eef6ff);
+}
+
+.admin-pagination-btn.active {
+  background: var(--primary-gradient, linear-gradient(135deg, #1578E9 0%, #0c4ea3 100%));
+  color: #ffffff;
+  border-color: var(--primary-color, #1578E9);
+  box-shadow: 0 2px 6px rgba(21, 120, 233, 0.25);
+}
+
+.admin-pagination-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background-color: var(--background-color, #f8fafc);
+  border-color: var(--border-subtle, #f1f5f9);
 }

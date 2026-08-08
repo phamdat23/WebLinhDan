@@ -3,7 +3,7 @@ import { Leaf, Menu, X, Search } from 'lucide-react';
 import { checkAdminAccessByIP } from '../../firebase';
 import './Header.css';
 
-export const Header = ({ onNavigateHome, onNavigateProducts, onNavigateAdmin, activePage = 'home' }) => {
+export const Header = ({ onNavigateHome, onNavigateProducts, onNavigateAdmin, onRequestAdminLogin, activePage = 'home' }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAdminTabAllowed, setIsAdminTabAllowed] = useState(false);
@@ -113,20 +113,36 @@ export const Header = ({ onNavigateHome, onNavigateProducts, onNavigateAdmin, ac
 
   const handleNavClick = (item) => {
     setIsMobileMenuOpen(false);
-    setActiveTab(item.id);
 
     if (item.id === 'home') {
+      setActiveTab('home');
       if (onNavigateHome) onNavigateHome('#trang-chu');
     } else if (item.id === 'products') {
+      setActiveTab('products');
       if (onNavigateProducts) onNavigateProducts('');
     } else if (item.id === 'admin') {
-      if (onNavigateAdmin) {
-        onNavigateAdmin();
+      const isAuth =
+        typeof window !== 'undefined' &&
+        (localStorage.getItem('isAdminLoggedIn') === 'true' ||
+          sessionStorage.getItem('isAdminLoggedIn') === 'true');
+      if (isAuth) {
+        setActiveTab('admin');
+        if (onNavigateAdmin) {
+          onNavigateAdmin();
+        } else {
+          window.location.hash = '#admin';
+        }
       } else {
-        window.location.hash = '#admin';
+        if (onRequestAdminLogin) {
+          onRequestAdminLogin();
+        } else if (onNavigateAdmin) {
+          onNavigateAdmin();
+        } else {
+          window.location.hash = '#admin';
+        }
       }
     } else {
-      // For #ve-chung-toi and #lien-he
+      setActiveTab(item.id);
       if (onNavigateHome) {
         onNavigateHome(item.href);
       } else {

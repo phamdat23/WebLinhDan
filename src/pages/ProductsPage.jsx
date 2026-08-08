@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { MainLayout } from '../layouts/MainLayout';
+import { ImageWithShimmer } from '../components/ui/ImageWithShimmer';
 import {
   TAGS_LIST,
   STATUS_LIST,
@@ -13,6 +14,8 @@ import {
   Circle,
   Search,
   Tag,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import './ProductsPage.css';
 
@@ -31,8 +34,12 @@ export const ProductsPage = ({
   onNavigateHome,
   onNavigateProducts,
   onNavigateAdmin,
+  onRequestAdminLogin,
+  onSelectProduct,
   productsList = [],
   categoriesList = [],
+  isLoadingProducts = false,
+  isLoadingCategories = false,
 }) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -139,7 +146,9 @@ export const ProductsPage = ({
 
   // Filter products dynamically based on category, tags, status & search query (Fuzzy matching name & category)
   const filteredProducts = useMemo(() => {
+    if (!Array.isArray(productsList)) return [];
     return productsList.filter((product) => {
+      if (!product || typeof product !== 'object') return false;
       // Products with status 'Ẩn' are NEVER displayed
       if (product.status === 'Ẩn') {
         return false;
@@ -180,11 +189,46 @@ export const ProductsPage = ({
     });
   }, [productsList, selectedCategories, selectedTags, selectedStatus, searchQuery]);
 
+  // PAGINATION LOGIC: 20 items per page
+  const ITEMS_PER_PAGE = 20;
+  const [currentPageNum, setCurrentPageNum] = useState(1);
+
+  // Reset to page 1 whenever filters or search query change
+  useEffect(() => {
+    setCurrentPageNum(1);
+  }, [selectedCategories, selectedTags, selectedStatus, searchQuery]);
+
+  const totalProducts = filteredProducts.length;
+  const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
+
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPageNum - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPageNum]);
+
+  const startItem = totalProducts === 0 ? 0 : (currentPageNum - 1) * ITEMS_PER_PAGE + 1;
+  const endItem = Math.min(currentPageNum * ITEMS_PER_PAGE, totalProducts);
+
+  // Helper to generate page numbers with ellipsis
+  const getPageNumbers = (current, total) => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, '...', total];
+    }
+    if (current >= total - 3) {
+      return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+    }
+    return [1, '...', current - 1, current, current + 1, '...', total];
+  };
+
   return (
     <MainLayout
       onNavigateHome={onNavigateHome}
       onNavigateProducts={onNavigateProducts}
       onNavigateAdmin={onNavigateAdmin}
+      onRequestAdminLogin={onRequestAdminLogin}
       activePage="products"
     >
       <div className="products-page">
@@ -223,7 +267,11 @@ export const ProductsPage = ({
                 <div className="filter-group">
                   <h4 className="filter-group-title">DANH MỤC SẢN PHẨM</h4>
                   <div className="checkbox-list">
-                    {activeCategories.length === 0 ? (
+                    {isLoadingCategories ? (
+                      [1, 2, 3, 4, 5].map((sk) => (
+                        <div key={sk} className="skeleton-box" style={{ height: '24px', width: '100%', marginBottom: '8px' }} />
+                      ))
+                    ) : activeCategories.length === 0 ? (
                       <div style={{ fontSize: '13px', color: '#888' }}>Chưa có danh mục</div>
                     ) : (
                       activeCategories.map((cat) => {
@@ -308,7 +356,13 @@ export const ProductsPage = ({
               {/* Active Filter Bar */}
               <div className="products-top-bar">
                 <div className="products-count">
-                  Hiển thị <strong>{isSearching ? '...' : filteredProducts.length}</strong> sản phẩm
+                  {isSearching ? (
+                    'Đang tìm kiếm...'
+                  ) : (
+                    <>
+                      Hiển thị <strong>{startItem} - {endItem}</strong> trong tổng số <strong>{totalProducts}</strong> sản phẩm
+                    </>
+                  )}
                 </div>
 
                 {/* Active Filter Badges */}
@@ -339,75 +393,146 @@ export const ProductsPage = ({
               </div>
 
               {/* Loading State or Products Grid */}
-              {isSearching ? (
+              {isLoadingProducts ? (
+                <div className="products-grid">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((skKey) => (
+                    <div key={skKey} className="product-item-card">
+                      <div className="product-item-img-wrapper skeleton-box" style={{ minHeight: '220px' }} />
+                      <div className="product-item-details" style={{ padding: '12px' }}>
+                        <div className="skeleton-box" style={{ height: '14px', width: '40%', marginBottom: '8px' }} />
+                        <div className="skeleton-box" style={{ height: '20px', width: '85%', marginBottom: '12px' }} />
+                        <div className="skeleton-box" style={{ height: '16px', width: '50%' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : isSearching ? (
                 <div className="search-loading-container">
                   <div className="search-loading-spinner" />
                   <p className="search-loading-text">Đang tìm kiếm sản phẩm...</p>
                 </div>
               ) : filteredProducts.length > 0 ? (
-                <div className="products-grid">
-                  {filteredProducts.map((product) => {
-                    const isOutOfStock = product.status === 'Hết hàng';
-                    return (
-                      <div
-                        key={product.id}
-                        className={`product-item-card ${
-                          isOutOfStock ? 'is-out-of-stock' : ''
-                        }`}
-                      >
-                        <div className="product-item-img-wrapper">
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="product-item-img"
-                          />
+                <>
+                  <div className="products-grid">
+                    {paginatedProducts.map((product) => {
+                      const isOutOfStock = product.status === 'Hết hàng';
+                      const displayImg = (product.images && product.images[0]) || product.image;
+                      return (
+                        <div
+                          key={product.id}
+                          className={`product-item-card ${
+                            isOutOfStock ? 'is-out-of-stock' : ''
+                          }`}
+                          onClick={() => onSelectProduct && onSelectProduct(product.id)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <div className="product-item-img-wrapper">
+                            <ImageWithShimmer
+                              src={displayImg}
+                              alt={product.name}
+                              className="product-item-img"
+                            />
 
-                          {/* Render ALL Tags dynamically */}
-                          {Array.isArray(product.tags) && product.tags.length > 0 && (
-                            <div className="product-badges-container">
-                              {product.tags.map((tag) => {
-                                let badgeClass = 'badge-default';
-                                if (tag === 'Mới về') badgeClass = 'badge-new';
-                                else if (tag === 'Bán chạy') badgeClass = 'badge-hot';
-                                else if (tag === 'Nổi bật') badgeClass = 'badge-featured';
+                            {/* Render ALL Tags dynamically */}
+                            {Array.isArray(product.tags) && product.tags.length > 0 && (
+                              <div className="product-badges-container">
+                                {product.tags.map((tag) => {
+                                  let badgeClass = 'badge-default';
+                                  if (tag === 'Mới về') badgeClass = 'badge-new';
+                                  else if (tag === 'Bán chạy') badgeClass = 'badge-hot';
+                                  else if (tag === 'Nổi bật') badgeClass = 'badge-featured';
 
-                                return (
-                                  <span key={tag} className={`badge ${badgeClass}`}>
-                                    {tag}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          )}
+                                  return (
+                                    <span key={tag} className={`badge ${badgeClass}`}>
+                                      {tag}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            )}
 
-                          {/* Out of Stock Overlay Banner */}
-                          {isOutOfStock && (
-                            <div className="out-of-stock-overlay">
-                              <span>HẾT HÀNG</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="product-item-details">
-                          <span className="product-item-category">
-                            {product.category}
-                          </span>
-                          <h3 className="product-item-name">{product.name}</h3>
-                          <div className="product-item-bottom">
-                            <span className="product-item-weight">
-                              {product.weight}
-                            </span>
-                            {isOutOfStock ? (
-                              <span className="stock-status out">Hết hàng</span>
-                            ) : (
-                              <span className="stock-status in">Còn hàng</span>
+                            {/* Out of Stock Overlay Banner */}
+                            {isOutOfStock && (
+                              <div className="out-of-stock-overlay">
+                                <span>HẾT HÀNG</span>
+                              </div>
                             )}
                           </div>
+
+                          <div className="product-item-details">
+                            <span className="product-item-category">
+                              {product.category}
+                            </span>
+                            <h3 className="product-item-name">{product.name}</h3>
+                            <div className="product-item-bottom">
+                              <span className="product-item-weight">
+                                {product.weight}
+                              </span>
+                              {isOutOfStock ? (
+                                <span className="stock-status out">Hết hàng</span>
+                              ) : (
+                                <span className="stock-status in">Còn hàng</span>
+                              )}
+                            </div>
+                          </div>
                         </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* PAGINATION BAR */}
+                  {totalPages > 1 && (
+                    <div className="pagination-wrapper">
+                      <div className="pagination-info">
+                        Trang <strong>{currentPageNum}</strong> / <strong>{totalPages}</strong> (Hiển thị <strong>{startItem} - {endItem}</strong> của <strong>{totalProducts}</strong> sản phẩm)
                       </div>
-                    );
-                  })}
-                </div>
+                      <div className="pagination-controls">
+                        <button
+                          className="pagination-btn nav-btn"
+                          disabled={currentPageNum === 1}
+                          onClick={() => {
+                            setCurrentPageNum((prev) => Math.max(prev - 1, 1));
+                            window.scrollTo({ top: 250, behavior: 'smooth' });
+                          }}
+                        >
+                          <ChevronLeft size={16} />
+                          <span>Trước</span>
+                        </button>
+
+                        <div className="pagination-numbers">
+                          {getPageNumbers(currentPageNum, totalPages).map((p, idx) =>
+                            p === '...' ? (
+                              <span key={`ellipsis-${idx}`} className="pagination-ellipsis">...</span>
+                            ) : (
+                              <button
+                                key={p}
+                                className={`pagination-btn page-num-btn ${p === currentPageNum ? 'active' : ''}`}
+                                onClick={() => {
+                                  setCurrentPageNum(p);
+                                  window.scrollTo({ top: 250, behavior: 'smooth' });
+                                }}
+                              >
+                                {p}
+                              </button>
+                            )
+                          )}
+                        </div>
+
+                        <button
+                          className="pagination-btn nav-btn"
+                          disabled={currentPageNum === totalPages}
+                          onClick={() => {
+                            setCurrentPageNum((prev) => Math.min(prev + 1, totalPages));
+                            window.scrollTo({ top: 250, behavior: 'smooth' });
+                          }}
+                        >
+                          <span>Sau</span>
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="empty-products-state">
                   <h3>Không tìm thấy sản phẩm nào</h3>

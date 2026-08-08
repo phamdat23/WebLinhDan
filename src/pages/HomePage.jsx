@@ -12,12 +12,17 @@ export const HomePage = ({
   onNavigateHome,
   onNavigateProducts,
   onNavigateAdmin,
+  onRequestAdminLogin,
+  onSelectProduct,
+  isLoadingProducts = false,
+  isLoadingCategories = false,
 }) => {
   return (
     <MainLayout
       onNavigateHome={onNavigateHome}
       onNavigateProducts={onNavigateProducts}
       onNavigateAdmin={onNavigateAdmin}
+      onRequestAdminLogin={onRequestAdminLogin}
       activePage="home"
     >
       <HeroSection
@@ -28,12 +33,15 @@ export const HomePage = ({
       <CategorySection
         categoriesList={categoriesList}
         productsList={productsList}
+        isLoading={isLoadingCategories}
         onSelectCategory={(catTitle) => {
           if (onNavigateProducts) onNavigateProducts(catTitle);
         }}
       />
       <FeaturedProducts
         productsList={productsList}
+        isLoading={isLoadingProducts}
+        onSelectProduct={onSelectProduct}
         onViewAll={() => {
           if (onNavigateProducts) onNavigateProducts('');
         }}

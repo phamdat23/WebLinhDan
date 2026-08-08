@@ -1,0 +1,56 @@
+.shimmer-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--border-subtle, #f1f5f9);
+}
+
+.shimmer-placeholder-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #f1f5f9 37%,
+    #e2e8f0 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmerSweep 1.4s ease-in-out infinite;
+}
+
+.shimmer-img-loading {
+  opacity: 0;
+  transition: opacity 0.35s ease-in-out;
+}
+
+.shimmer-img-loaded {
+  opacity: 1;
+  transition: opacity 0.35s ease-in-out;
+}
+
+/* Base Skeleton Box utility */
+.skeleton-box {
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #f8fafc 37%,
+    #e2e8f0 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmerSweep 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm, 8px);
+}
+
+@keyframes shimmerSweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

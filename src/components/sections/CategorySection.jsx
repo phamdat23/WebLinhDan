@@ -1,8 +1,9 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ImageWithShimmer } from '../ui/ImageWithShimmer';
 import './CategorySection.css';
 
-export const CategorySection = ({ categoriesList = [], productsList = [], onSelectCategory }) => {
+export const CategorySection = ({ categoriesList = [], productsList = [], isLoading = false, onSelectCategory }) => {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -60,7 +61,7 @@ export const CategorySection = ({ categoriesList = [], productsList = [], onSele
     checkScroll();
     window.addEventListener('resize', checkScroll);
     return () => window.removeEventListener('resize', checkScroll);
-  }, [availableCategories]);
+  }, [availableCategories, isLoading]);
 
   const handleScroll = (direction) => {
     if (scrollRef.current) {
@@ -72,73 +73,79 @@ export const CategorySection = ({ categoriesList = [], productsList = [], onSele
     }
   };
 
-  if (availableCategories.length === 0) {
-    return (
-      <section className="category-section" id="san-pham">
-        <div className="container">
-          <h2 className="section-title">DANH MỤC SẢN PHẨM</h2>
-          <div style={{ textAlign: 'center', padding: '30px', color: '#666' }}>
-            Chưa có danh mục sản phẩm nào trên Firebase.
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="category-section" id="san-pham">
       <div className="container">
         <h2 className="section-title">DANH MỤC SẢN PHẨM</h2>
 
-        <div className="category-carousel-wrapper">
-          {/* Nút lùi bên trái (Left Side Button) */}
-          <button
-            className={`category-side-btn left ${!canScrollLeft ? 'disabled' : ''}`}
-            onClick={() => handleScroll('left')}
-            disabled={!canScrollLeft}
-            aria-label="Xem danh mục trước"
-            title="Xem danh mục trước"
-          >
-            <ChevronLeft size={22} />
-          </button>
-
-          {/* Khung chứa danh sách cuộn 1 dòng */}
-          <div
-            className="category-scroll-container"
-            ref={scrollRef}
-            onScroll={checkScroll}
-          >
-            {availableCategories.map((cat) => (
-              <div
-                key={cat.id}
-                className="category-card category-carousel-card"
-                onClick={() => {
-                  if (onSelectCategory) {
-                    onSelectCategory(cat.name);
-                  }
-                }}
-              >
-                <div className="category-img-container">
-                  <img src={cat.image} alt={cat.name} className="category-img" />
+        {isLoading ? (
+          <div className="category-carousel-wrapper">
+            <div className="category-scroll-container">
+              {[1, 2, 3, 4, 5, 6].map((skKey) => (
+                <div key={skKey} className="category-card category-carousel-card">
+                  <div className="category-img-container skeleton-box" style={{ minHeight: '120px' }} />
+                  <div className="category-info" style={{ padding: '8px 4px' }}>
+                    <div className="skeleton-box" style={{ height: '18px', width: '80%', margin: '0 auto' }} />
+                  </div>
                 </div>
-                <div className="category-info">
-                  <h3 className="category-name">{cat.name}</h3>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+        ) : availableCategories.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '30px', color: '#666' }}>
+            Chưa có danh mục sản phẩm nào trên Firebase.
+          </div>
+        ) : (
+          <div className="category-carousel-wrapper">
+            {/* Nút lùi bên trái (Left Side Button) */}
+            <button
+              className={`category-side-btn left ${!canScrollLeft ? 'disabled' : ''}`}
+              onClick={() => handleScroll('left')}
+              disabled={!canScrollLeft}
+              aria-label="Xem danh mục trước"
+              title="Xem danh mục trước"
+            >
+              <ChevronLeft size={22} />
+            </button>
 
-          {/* Nút tiến bên phải (Right Side Button) */}
-          <button
-            className={`category-side-btn right ${!canScrollRight ? 'disabled' : ''}`}
-            onClick={() => handleScroll('right')}
-            disabled={!canScrollRight}
-            aria-label="Xem danh mục tiếp theo"
-            title="Xem danh mục tiếp theo"
-          >
-            <ChevronRight size={22} />
-          </button>
-        </div>
+            {/* Khung chứa danh sách cuộn 1 dòng */}
+            <div
+              className="category-scroll-container"
+              ref={scrollRef}
+              onScroll={checkScroll}
+            >
+              {availableCategories.map((cat) => (
+                <div
+                  key={cat.id}
+                  className="category-card category-carousel-card"
+                  onClick={() => {
+                    if (onSelectCategory) {
+                      onSelectCategory(cat.name);
+                    }
+                  }}
+                >
+                  <div className="category-img-container">
+                    <ImageWithShimmer src={cat.image} alt={cat.name} className="category-img" />
+                  </div>
+                  <div className="category-info">
+                    <h3 className="category-name">{cat.name}</h3>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Nút tiến bên phải (Right Side Button) */}
+            <button
+              className={`category-side-btn right ${!canScrollRight ? 'disabled' : ''}`}
+              onClick={() => handleScroll('right')}
+              disabled={!canScrollRight}
+              aria-label="Xem danh mục tiếp theo"
+              title="Xem danh mục tiếp theo"
+            >
+              <ChevronRight size={22} />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

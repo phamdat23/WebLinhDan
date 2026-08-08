@@ -15,10 +15,14 @@ import {
   Boxes,
   Home,
   FolderTree,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
 } from 'lucide-react';
 import { StatusDonutChart, CategoryDonutChart } from '../components/admin/DonutChart';
 import { ProductFormModal } from '../components/admin/ProductFormModal';
 import { CategoryFormModal } from '../components/admin/CategoryFormModal';
+import { ImageWithShimmer } from '../components/ui/ImageWithShimmer';
 import './AdminPage.css';
 
 export const AdminPage = ({
@@ -32,6 +36,7 @@ export const AdminPage = ({
   onUpdateCategory,
   onDeleteCategory,
   onNavigateHome,
+  onLogout,
 }) => {
   const safeProducts = Array.isArray(productsList) ? productsList : [];
   const safeCategories = useMemo(() => {
@@ -148,6 +153,51 @@ export const AdminPage = ({
       return cat.name.toLowerCase().includes(categorySearchQuery.toLowerCase());
     });
   }, [formattedCategories, categorySearchQuery]);
+
+  // PAGINATION LOGIC: 20 items per page for Admin
+  const ADMIN_ITEMS_PER_PAGE = 20;
+  const [productPageNum, setProductPageNum] = useState(1);
+  const [categoryPageNum, setCategoryPageNum] = useState(1);
+
+  // Reset product page number when filter or search changes
+  useEffect(() => {
+    setProductPageNum(1);
+  }, [searchQuery, selectedCategoryFilter]);
+
+  // Reset category page number when category search changes
+  useEffect(() => {
+    setCategoryPageNum(1);
+  }, [categorySearchQuery]);
+
+  const totalAdminProducts = filteredProducts.length;
+  const totalAdminProductPages = Math.ceil(totalAdminProducts / ADMIN_ITEMS_PER_PAGE) || 1;
+
+  const paginatedAdminProducts = useMemo(() => {
+    const start = (productPageNum - 1) * ADMIN_ITEMS_PER_PAGE;
+    return filteredProducts.slice(start, start + ADMIN_ITEMS_PER_PAGE);
+  }, [filteredProducts, productPageNum]);
+
+  const totalAdminCategories = filteredCategories.length;
+  const totalAdminCategoryPages = Math.ceil(totalAdminCategories / ADMIN_ITEMS_PER_PAGE) || 1;
+
+  const paginatedAdminCategories = useMemo(() => {
+    const start = (categoryPageNum - 1) * ADMIN_ITEMS_PER_PAGE;
+    return filteredCategories.slice(start, start + ADMIN_ITEMS_PER_PAGE);
+  }, [filteredCategories, categoryPageNum]);
+
+  // Helper to generate page numbers with ellipsis
+  const getPageNumbers = (current, total) => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, '...', total];
+    }
+    if (current >= total - 3) {
+      return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+    }
+    return [1, '...', current - 1, current, current + 1, '...', total];
+  };
 
   // Product Modal Handlers
   const handleOpenAddModal = () => {
@@ -269,6 +319,16 @@ export const AdminPage = ({
             <Home size={18} />
             <span>Quay lại trang chủ</span>
           </button>
+          {onLogout && (
+            <button
+              className="back-home-btn logout"
+              onClick={onLogout}
+              style={{ marginTop: '8px', color: '#ef4444' }}
+            >
+              <LogOut size={18} />
+              <span>Đăng xuất Admin</span>
+            </button>
+          )}
         </div>
       </aside>
 
@@ -401,11 +461,12 @@ export const AdminPage = ({
                 </thead>
                 <tbody>
                   {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
+                    paginatedAdminProducts.map((product) => (
                       <tr key={product.id}>
                         <td>
-                          <img
+                          <ImageWithShimmer
                             src={
+                              (product.images && product.images[0]) ||
                               product.image ||
                               'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'
                             }
@@ -477,6 +538,46 @@ export const AdminPage = ({
                 </tbody>
               </table>
             </div>
+
+            {/* ADMIN PRODUCT PAGINATION BAR */}
+            {totalAdminProductPages > 1 && (
+              <div className="admin-pagination-bar">
+                <div className="admin-pagination-info">
+                  Trang <strong>{productPageNum}</strong> / <strong>{totalAdminProductPages}</strong> (Hiển thị <strong>{(productPageNum - 1) * ADMIN_ITEMS_PER_PAGE + 1} - {Math.min(productPageNum * ADMIN_ITEMS_PER_PAGE, totalAdminProducts)}</strong> trong <strong>{totalAdminProducts}</strong> sản phẩm)
+                </div>
+                <div className="admin-pagination-controls">
+                  <button
+                    className="admin-pagination-btn"
+                    disabled={productPageNum === 1}
+                    onClick={() => setProductPageNum((prev) => Math.max(prev - 1, 1))}
+                  >
+                    <ChevronLeft size={16} /> Trang trước
+                  </button>
+                  <div className="admin-pagination-numbers">
+                    {getPageNumbers(productPageNum, totalAdminProductPages).map((p, idx) =>
+                      p === '...' ? (
+                        <span key={`ellipsis-${idx}`} className="pagination-ellipsis">...</span>
+                      ) : (
+                        <button
+                          key={p}
+                          className={`admin-pagination-btn ${p === productPageNum ? 'active' : ''}`}
+                          onClick={() => setProductPageNum(p)}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                  </div>
+                  <button
+                    className="admin-pagination-btn"
+                    disabled={productPageNum === totalAdminProductPages}
+                    onClick={() => setProductPageNum((prev) => Math.min(prev + 1, totalAdminProductPages))}
+                  >
+                    Trang sau <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -516,7 +617,7 @@ export const AdminPage = ({
                 </thead>
                 <tbody>
                   {filteredCategories.length > 0 ? (
-                    filteredCategories.map((cat) => {
+                    paginatedAdminCategories.map((cat) => {
                       const prodCount = safeProducts.filter(
                         (p) => p && p.category === cat.name
                       ).length;
@@ -532,7 +633,7 @@ export const AdminPage = ({
                       return (
                         <tr key={cat.id}>
                           <td>
-                            <img src={displayImg} alt={cat.name} className="table-img-thumb" />
+                            <ImageWithShimmer src={displayImg} alt={cat.name} className="table-img-thumb" />
                           </td>
                           <td>
                             <strong className="table-product-name">{cat.name}</strong>
@@ -574,6 +675,46 @@ export const AdminPage = ({
                 </tbody>
               </table>
             </div>
+
+            {/* ADMIN CATEGORY PAGINATION BAR */}
+            {totalAdminCategoryPages > 1 && (
+              <div className="admin-pagination-bar">
+                <div className="admin-pagination-info">
+                  Trang <strong>{categoryPageNum}</strong> / <strong>{totalAdminCategoryPages}</strong> (Hiển thị <strong>{(categoryPageNum - 1) * ADMIN_ITEMS_PER_PAGE + 1} - {Math.min(categoryPageNum * ADMIN_ITEMS_PER_PAGE, totalAdminCategories)}</strong> trong <strong>{totalAdminCategories}</strong> danh mục)
+                </div>
+                <div className="admin-pagination-controls">
+                  <button
+                    className="admin-pagination-btn"
+                    disabled={categoryPageNum === 1}
+                    onClick={() => setCategoryPageNum((prev) => Math.max(prev - 1, 1))}
+                  >
+                    <ChevronLeft size={16} /> Trang trước
+                  </button>
+                  <div className="admin-pagination-numbers">
+                    {getPageNumbers(categoryPageNum, totalAdminCategoryPages).map((p, idx) =>
+                      p === '...' ? (
+                        <span key={`ellipsis-${idx}`} className="pagination-ellipsis">...</span>
+                      ) : (
+                        <button
+                          key={p}
+                          className={`admin-pagination-btn ${p === categoryPageNum ? 'active' : ''}`}
+                          onClick={() => setCategoryPageNum(p)}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                  </div>
+                  <button
+                    className="admin-pagination-btn"
+                    disabled={categoryPageNum === totalAdminCategoryPages}
+                    onClick={() => setCategoryPageNum((prev) => Math.min(prev + 1, totalAdminCategoryPages))}
+                  >
+                    Trang sau <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

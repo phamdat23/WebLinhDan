@@ -1,8 +1,9 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ImageWithShimmer } from '../ui/ImageWithShimmer';
 import './FeaturedProducts.css';
 
-export const FeaturedProducts = ({ productsList = [], onViewAll }) => {
+export const FeaturedProducts = ({ productsList = [], isLoading = false, onViewAll, onSelectProduct }) => {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -12,7 +13,7 @@ export const FeaturedProducts = ({ productsList = [], onViewAll }) => {
     if (!Array.isArray(productsList) || productsList.length === 0) return [];
 
     return productsList.filter(
-      (p) => p.status !== 'Ẩn' && Array.isArray(p.tags) && p.tags.includes('Nổi bật')
+      (p) => p && p.status !== 'Ẩn' && Array.isArray(p.tags) && p.tags.includes('Nổi bật')
     );
   }, [productsList]);
 
@@ -29,7 +30,7 @@ export const FeaturedProducts = ({ productsList = [], onViewAll }) => {
     checkScroll();
     window.addEventListener('resize', checkScroll);
     return () => window.removeEventListener('resize', checkScroll);
-  }, [featuredProducts]);
+  }, [featuredProducts, isLoading]);
 
   const handleScroll = (direction) => {
     if (scrollRef.current) {
@@ -58,7 +59,21 @@ export const FeaturedProducts = ({ productsList = [], onViewAll }) => {
           </a>
         </div>
 
-        {featuredProducts.length === 0 ? (
+        {isLoading ? (
+          <div className="featured-carousel-wrapper">
+            <div className="featured-scroll-container">
+              {[1, 2, 3, 4].map((skKey) => (
+                <div key={skKey} className="product-card featured-carousel-card">
+                  <div className="product-img-wrapper skeleton-box" style={{ minHeight: '200px' }} />
+                  <div className="product-details" style={{ padding: '12px 8px' }}>
+                    <div className="skeleton-box" style={{ height: '20px', width: '85%', marginBottom: '8px' }} />
+                    <div className="skeleton-box" style={{ height: '14px', width: '45%' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : featuredProducts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '30px', color: '#666', fontSize: '0.95rem' }}>
             Chưa có sản phẩm nào có nhãn "Nổi bật" trên Firebase.
           </div>
@@ -81,20 +96,27 @@ export const FeaturedProducts = ({ productsList = [], onViewAll }) => {
               ref={scrollRef}
               onScroll={checkScroll}
             >
-              {featuredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="product-card featured-carousel-card"
-                  onClick={() => {
-                    if (onViewAll) onViewAll();
-                  }}
-                >
-                  <div className="product-img-wrapper">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="product-img"
-                    />
+              {featuredProducts.map((product) => {
+                const displayImg = (product.images && product.images[0]) || product.image;
+                return (
+                  <div
+                    key={product.id}
+                    className="product-card featured-carousel-card"
+                    onClick={() => {
+                      if (onSelectProduct) {
+                        onSelectProduct(product.id);
+                      } else if (onViewAll) {
+                        onViewAll();
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="product-img-wrapper">
+                      <ImageWithShimmer
+                        src={displayImg}
+                        alt={product.name}
+                        className="product-img"
+                      />
 
                     {/* Render ALL Tags dynamically */}
                     {Array.isArray(product.tags) && product.tags.length > 0 && (
@@ -119,7 +141,8 @@ export const FeaturedProducts = ({ productsList = [], onViewAll }) => {
                     <span className="product-weight">{product.weight}</span>
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
 
             {/* Nút tiến bên phải (Right Side Button) */}

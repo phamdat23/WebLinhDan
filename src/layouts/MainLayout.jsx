@@ -6,6 +6,7 @@ export const MainLayout = ({
   onNavigateHome,
   onNavigateProducts,
   onNavigateAdmin,
+  onRequestAdminLogin,
   activePage,
 }) => {
   return (
@@ -14,6 +15,7 @@ export const MainLayout = ({
         onNavigateHome={onNavigateHome}
         onNavigateProducts={onNavigateProducts}
         onNavigateAdmin={onNavigateAdmin}
+        onRequestAdminLogin={onRequestAdminLogin}
         activePage={activePage}
       />
       <main style={{ flex: 1, width: '100%' }}>

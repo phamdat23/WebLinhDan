@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { HomePage } from './pages/HomePage';
 import { ProductsPage } from './pages/ProductsPage';
 import { AdminPage } from './pages/AdminPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
+import { AdminLoginModal } from './components/admin/AdminLoginModal';
 import { checkAdminAccessByIP } from './firebase';
 import {
   subscribeProducts,
@@ -18,7 +20,17 @@ import {
 const parseRoute = () => {
   const hash = window.location.hash || '#trang-chu';
   if (hash.startsWith('#admin')) {
-    return { page: 'admin', category: '', searchQuery: '', hash };
+    return { page: 'admin', productId: '', category: '', searchQuery: '', hash };
+  }
+  if (hash.startsWith('#chi-tiet-san-pham') || hash.startsWith('#detail') || hash.startsWith('#product-detail')) {
+    const queryIndex = hash.indexOf('?');
+    let productId = '';
+    if (queryIndex !== -1) {
+      const queryString = hash.substring(queryIndex + 1);
+      const params = new URLSearchParams(queryString);
+      productId = params.get('id') || '';
+    }
+    return { page: 'product-detail', productId, category: '', searchQuery: '', hash };
   }
   if (hash.startsWith('#san-pham') || hash.startsWith('#products')) {
     const queryIndex = hash.indexOf('?');
@@ -30,28 +42,34 @@ const parseRoute = () => {
       category = params.get('category') || '';
       searchQuery = params.get('search') || params.get('q') || '';
     }
-    return { page: 'products', category, searchQuery, hash };
+    return { page: 'products', productId: '', category, searchQuery, hash };
   }
-  return { page: 'home', category: '', searchQuery: '', hash };
+  return { page: 'home', productId: '', category: '', searchQuery: '', hash };
 };
 
 export function App() {
   const initialRoute = parseRoute();
   const [currentPage, setCurrentPage] = useState(initialRoute.page);
+  const [selectedProductId, setSelectedProductId] = useState(initialRoute.productId || '');
   const [selectedCategory, setSelectedCategory] = useState(initialRoute.category);
   const [selectedSearchQuery, setSelectedSearchQuery] = useState(initialRoute.searchQuery);
   const [productsList, setProductsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
 
   // Subscribe to Firebase Realtime Database for Products & Categories
   useEffect(() => {
     const unsubscribeProducts = subscribeProducts((data) => {
       setProductsList(Array.isArray(data) ? data : []);
+      setIsLoadingProducts(false);
     });
 
     const unsubscribeCategories = subscribeCategories((cats) => {
       setCategoriesList(Array.isArray(cats) ? cats : []);
+      setIsLoadingCategories(false);
     });
 
     return () => {
@@ -83,11 +101,19 @@ export function App() {
     }
   };
 
-  // Sync state with URL Hash for SPA navigation & Remote Config IP Guard
+  const isUserAdminAuthenticated = () => {
+    return (
+      typeof window !== 'undefined' &&
+      (localStorage.getItem('isAdminLoggedIn') === 'true' ||
+        sessionStorage.getItem('isAdminLoggedIn') === 'true')
+    );
+  };
+
+  // Sync state with URL Hash for SPA navigation & Remote Config IP Guard + Login Guard
   useEffect(() => {
     let isMounted = true;
     const handleHashChange = async () => {
-      const { page, category, searchQuery, hash } = parseRoute();
+      const { page, productId, category, searchQuery, hash } = parseRoute();
       if (page === 'admin') {
         const isAllowed = await checkAdminAccessByIP();
         if (!isAllowed && isMounted) {
@@ -96,9 +122,16 @@ export function App() {
           setCurrentPage('home');
           return;
         }
+
+        const isAuth = isUserAdminAuthenticated();
+        if (!isAuth && isMounted) {
+          setIsAdminLoginOpen(true);
+          return;
+        }
       }
       if (isMounted) {
         setCurrentPage(page);
+        if (productId) setSelectedProductId(productId);
         setSelectedCategory(category);
         setSelectedSearchQuery(searchQuery);
         scrollToHashOrTop(hash);
@@ -135,6 +168,10 @@ export function App() {
     const queryString = params.toString();
     const newHash = queryString ? `#san-pham?${queryString}` : '#san-pham';
 
+    setCurrentPage('products');
+    setSelectedCategory(category);
+    setSelectedSearchQuery(search);
+
     if (window.location.hash === newHash) {
       scrollToHashOrTop(newHash);
     } else {
@@ -142,8 +179,62 @@ export function App() {
     }
   };
 
+  const handleNavigateProductDetail = (productId) => {
+    if (!productId) return;
+    const newHash = `#chi-tiet-san-pham?id=${productId}`;
+    setCurrentPage('product-detail');
+    setSelectedProductId(productId);
+    if (window.location.hash === newHash) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.location.hash = newHash;
+    }
+  };
+
   const handleNavigateAdmin = () => {
+    const isAuth = isUserAdminAuthenticated();
+    if (isAuth) {
+      setCurrentPage('admin');
+      if (window.location.hash === '#admin') {
+        scrollToHashOrTop('#admin');
+      } else {
+        window.location.hash = '#admin';
+      }
+    } else {
+      setIsAdminLoginOpen(true);
+    }
+  };
+
+  const handleRequestAdminLogin = () => {
+    const isAuth = isUserAdminAuthenticated();
+    if (isAuth) {
+      handleNavigateAdmin();
+    } else {
+      setIsAdminLoginOpen(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAdminLoginOpen(false);
+    localStorage.setItem('isAdminLoggedIn', 'true');
+    sessionStorage.setItem('isAdminLoggedIn', 'true');
     window.location.hash = '#admin';
+    setCurrentPage('admin');
+  };
+
+  const handleCloseAdminLogin = () => {
+    setIsAdminLoginOpen(false);
+    if (window.location.hash === '#admin' && !isUserAdminAuthenticated()) {
+      window.location.hash = '#trang-chu';
+      setCurrentPage('home');
+    }
+  };
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('isAdminLoggedIn');
+    sessionStorage.removeItem('isAdminLoggedIn');
+    window.location.hash = '#trang-chu';
+    setCurrentPage('home');
   };
 
   // Optimistic UI updates + Firebase Realtime DB async syncing for Products
@@ -276,44 +367,66 @@ export function App() {
     }
   };
 
-  if (currentPage === 'admin') {
-    return (
-      <AdminPage
-        productsList={productsList}
-        categoriesList={categoriesList}
-        isSyncing={isSyncing}
-        onAddProduct={handleAddProduct}
-        onUpdateProduct={handleUpdateProduct}
-        onDeleteProduct={handleDeleteProduct}
-        onAddCategory={handleAddCategory}
-        onUpdateCategory={handleUpdateCategory}
-        onDeleteCategory={handleDeleteCategory}
-        onNavigateHome={handleNavigateHome}
-      />
-    );
-  }
-
-  if (currentPage === 'products') {
-    return (
-      <ProductsPage
-        initialCategory={selectedCategory}
-        initialSearchQuery={selectedSearchQuery}
-        onNavigateHome={handleNavigateHome}
-        onNavigateProducts={handleNavigateProducts}
-        productsList={productsList}
-        categoriesList={categoriesList}
-      />
-    );
-  }
-
   return (
-    <HomePage
-      productsList={productsList}
-      categoriesList={categoriesList}
-      onNavigateHome={handleNavigateHome}
-      onNavigateProducts={handleNavigateProducts}
-      onNavigateAdmin={handleNavigateAdmin}
-    />
+    <>
+      {currentPage === 'admin' ? (
+        <AdminPage
+          productsList={productsList}
+          categoriesList={categoriesList}
+          isSyncing={isSyncing}
+          onAddProduct={handleAddProduct}
+          onUpdateProduct={handleUpdateProduct}
+          onDeleteProduct={handleDeleteProduct}
+          onAddCategory={handleAddCategory}
+          onUpdateCategory={handleUpdateCategory}
+          onDeleteCategory={handleDeleteCategory}
+          onNavigateHome={handleNavigateHome}
+          onLogout={handleAdminLogout}
+        />
+      ) : currentPage === 'product-detail' ? (
+        <ProductDetailPage
+          productId={selectedProductId}
+          productsList={productsList}
+          onNavigateHome={handleNavigateHome}
+          onNavigateProducts={handleNavigateProducts}
+          onNavigateAdmin={handleNavigateAdmin}
+          onRequestAdminLogin={handleRequestAdminLogin}
+          onSelectProduct={handleNavigateProductDetail}
+        />
+      ) : currentPage === 'products' ? (
+        <ProductsPage
+          initialCategory={selectedCategory}
+          initialSearchQuery={selectedSearchQuery}
+          onNavigateHome={handleNavigateHome}
+          onNavigateProducts={handleNavigateProducts}
+          onNavigateAdmin={handleNavigateAdmin}
+          onRequestAdminLogin={handleRequestAdminLogin}
+          onSelectProduct={handleNavigateProductDetail}
+          productsList={productsList}
+          categoriesList={categoriesList}
+          isLoadingProducts={isLoadingProducts}
+          isLoadingCategories={isLoadingCategories}
+        />
+      ) : (
+        <HomePage
+          productsList={productsList}
+          categoriesList={categoriesList}
+          onNavigateHome={handleNavigateHome}
+          onNavigateProducts={handleNavigateProducts}
+          onNavigateAdmin={handleNavigateAdmin}
+          onRequestAdminLogin={handleRequestAdminLogin}
+          onSelectProduct={handleNavigateProductDetail}
+          isLoadingProducts={isLoadingProducts}
+          isLoadingCategories={isLoadingCategories}
+        />
+      )}
+
+      <AdminLoginModal
+        isOpen={isAdminLoginOpen}
+        onClose={handleCloseAdminLogin}
+        onLoginSuccess={handleLoginSuccess}
+      />
+    </>
   );
 }
 
