@@ -10,16 +10,16 @@ import {
 } from "firebase/remote-config";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBtNjamDTGT_RTgXbFZ6Xx0b0cvpffmgUo",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "weblinhdan.firebaseapp.com",
   databaseURL:
     import.meta.env.VITE_FIREBASE_DATABASE_URL ||
     "https://weblinhdan-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "weblinhdan",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "weblinhdan.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "264842701636",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:264842701636:web:e85437363a5187c4238511",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-5XJ053G40H",
 };
 
 // Initialize Firebase App & Realtime Database
