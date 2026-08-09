@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { TAGS_LIST } from '../../utils/productsData';
 import { X, Upload, Image as ImageIcon, Save, Plus, Trash2, Star } from 'lucide-react';
 import './ProductFormModal.css';
@@ -19,12 +19,20 @@ export const ProductFormModal = ({
   editingProduct = null,
   categoriesList = [],
 }) => {
-  // Safe array fallback for categories and tags
-  const safeCategories = Array.isArray(categoriesList) && categoriesList.length > 0
-    ? categoriesList.map((c) => (typeof c === 'string' ? c : c.name || c.title || '')).filter(Boolean)
-    : DEFAULT_CATEGORIES;
+  // Safe array fallback for categories and tags — dùng useMemo để tránh tạo reference mới mỗi render
+  // (nếu không, useEffect bên dưới sẽ fire liên tục và reset form mỗi khi người dùng nhập liệu)
+  const safeCategories = useMemo(() => {
+    return Array.isArray(categoriesList) && categoriesList.length > 0
+      ? categoriesList.map((c) => (typeof c === 'string' ? c : c.name || c.title || '')).filter(Boolean)
+      : DEFAULT_CATEGORIES;
+  }, [categoriesList]);
 
-  const safeTagsList = Array.isArray(TAGS_LIST) ? TAGS_LIST : ['Mới về', 'Nổi bật', 'Bán chạy'];
+  const safeTagsList = useMemo(() => {
+    return Array.isArray(TAGS_LIST) ? TAGS_LIST : ['Mới về', 'Nổi bật', 'Bán chạy'];
+  }, []);
+
+  // Ref để reset file input sau mỗi lần upload (cho phép chọn lại cùng 1 file)
+  const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -123,6 +131,9 @@ export const ProductFormModal = ({
             ...prev,
             images: [...prev.images, lightweightBase64],
           }));
+
+          // Reset file input để có thể chọn lại cùng 1 file lần sau
+          if (fileInputRef.current) fileInputRef.current.value = '';
         };
         img.onerror = () => {
           setFormData((prev) => ({
@@ -398,6 +409,7 @@ export const ProductFormModal = ({
                   <label className="file-upload-btn">
                     <Upload size={16} /> Chọn ảnh từ thiết bị
                     <input
+                      ref={fileInputRef}
                       type="file"
                       accept="image/*"
                       onChange={handleFileChange}
