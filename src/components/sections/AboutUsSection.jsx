@@ -40,12 +40,6 @@ export const AboutUsSection = () => {
 
   const stats = [
     {
-      id: 1,
-      value: '5+',
-      label: 'Năm kinh nghiệm',
-      icon: <Award size={22} />,
-    },
-    {
       id: 2,
       value: '1000+',
       label: 'Khách hàng tin tưởng',
@@ -53,7 +47,7 @@ export const AboutUsSection = () => {
     },
     {
       id: 3,
-      value: '50+',
+      value: '30+',
       label: 'Sản phẩm đa dạng',
       icon: <PackageCheck size={22} />,
     },

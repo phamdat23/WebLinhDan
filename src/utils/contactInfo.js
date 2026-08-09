@@ -2,7 +2,7 @@
 // Bạn có thể dễ dàng thay đổi tất cả các giá trị tại đây mà không cần sửa code giao diện
 
 const defaultAddress = '60 QL279D, Mường La, Sơn La, Việt Nam';
-const defaultPhone1 = '0982 051 975';
+const defaultPhone1 = '0982 051 974';
 const defaultPhone2 = '0978 213 067';
 
 export const CONTACT_INFO = {
@@ -13,13 +13,15 @@ export const CONTACT_INFO = {
   phone2: defaultPhone2,
   phone: defaultPhone1, // Fallback
 
-  zaloUrl1: 'https://zalo.me/0982051975',
+  zaloUrl1: 'https://zalo.me/0982051974',
   zaloUrl2: 'https://zalo.me/0978213067',
-  zaloUrl: 'https://zalo.me/0982051975', // Fallback
+  zaloUrl: 'https://zalo.me/0982051974', // Fallback
 
   // 2. Facebook
   facebookName: 'Hải Sản Làng Chài-Nga Doãn',
   facebookUrl: 'https://www.facebook.com/profile.php?id=61593230153765',
+  facebookName2: 'Nguyên Nga',
+  facebookUrl2: 'https://www.facebook.com/share/1EZULNnMF3/?mibextid=wwXIfr',
 
   // 3. Địa chỉ & Google Maps
   address: defaultAddress,

@@ -160,6 +160,7 @@ export const HeroSection = ({ onExploreProducts, bannerImages = [] }) => {
             <div className="feature-text">
               <h4 className="feature-title">Chất lượng đảm bảo</h4>
               <p className="feature-subtitle">Sản phẩm tuyển chọn kỹ lượng</p>
+                 <p className="feature-subtitle">Đảm bảo vệ sinh ATTP</p>
             </div>
           </div>
 

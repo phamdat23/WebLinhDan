@@ -25,6 +25,8 @@ export const ContactSection = () => {
   const mapsSearchUrl = CONTACT_INFO.googleMapsUrl || getGoogleMapsSearchUrl(CONTACT_INFO.address);
   const zaloUrl = CONTACT_INFO.zaloUrl || getZaloUrl(CONTACT_INFO.phone);
   const facebookUrl = CONTACT_INFO.facebookUrl || 'https://facebook.com';
+  const facebookUrl2 = CONTACT_INFO.facebookUrl2 || '';
+  const facebookName2 = CONTACT_INFO.facebookName2 || '';
 
   return (
     <section className="contact-section" id="lien-he">
@@ -93,7 +95,7 @@ export const ContactSection = () => {
                   </div>
                 </div>
 
-                {/* Item 3: Facebook -> Mở Facebook tab mới */}
+                {/* Item 3: Facebook 1 -> Mở Facebook tab mới */}
                 <a
                   href={facebookUrl}
                   target="_blank"
@@ -111,6 +113,27 @@ export const ContactSection = () => {
                     <span className="info-value-link">{CONTACT_INFO.facebookName}</span>
                   </div>
                 </a>
+
+                {/* Item 4: Facebook 2 -> Mở Facebook tab mới */}
+                {facebookUrl2 && (
+                  <a
+                    href={facebookUrl2}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="contact-info-item clickable-item"
+                    title="Click để truy cập Facebook cá nhân"
+                  >
+                    <div className="contact-icon-box facebook-icon-box">
+                      <FacebookIcon size={20} className="contact-icon" />
+                    </div>
+                    <div className="contact-info-detail">
+                      <span className="info-label">
+                        Facebook cá nhân <ExternalLink size={12} className="link-icon-inline" />
+                      </span>
+                      <span className="info-value-link">{facebookName2}</span>
+                    </div>
+                  </a>
+                )}
               </div>
             </div>
 
