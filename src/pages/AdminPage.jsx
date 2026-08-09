@@ -18,11 +18,14 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Menu,
+  X,
 } from 'lucide-react';
 import { StatusDonutChart, CategoryDonutChart } from '../components/admin/DonutChart';
 import { ProductFormModal } from '../components/admin/ProductFormModal';
 import { CategoryFormModal } from '../components/admin/CategoryFormModal';
 import { ImageWithShimmer } from '../components/ui/ImageWithShimmer';
+import logoWeb from '../assets/images/logo_web.jpg';
 import './AdminPage.css';
 
 export const AdminPage = ({
@@ -271,24 +274,51 @@ export const AdminPage = ({
     setConfirmDeleteConfig({ isOpen: false, type: null, id: null, name: '' });
   };
 
+  // Sidebar collapse & mobile states
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
   return (
-    <div className="admin-page-layout">
+    <div className={`admin-page-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      {/* MOBILE OVERLAY */}
+      {isMobileSidebarOpen && (
+        <div className="admin-sidebar-overlay" onClick={() => setIsMobileSidebarOpen(false)} />
+      )}
+
       {/* LEFT SIDEBAR NAVIGATION */}
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar ${isMobileSidebarOpen ? 'open' : ''} ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+        {/* Floating toggle button positioned on the right edge */}
+        <button
+          className="admin-sidebar-floating-toggle"
+          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          title={isSidebarCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+          aria-label="Toggle Sidebar"
+        >
+          {isSidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </button>
+
         <div className="admin-sidebar-header">
-          <div className="admin-logo-icon">
-            <Leaf size={22} />
-          </div>
+          <img src={logoWeb} alt="Logo" className="admin-logo-img" />
           <div className="admin-logo-text">
-            <h2>Nông Sản Xanh</h2>
-            <span>Quyền Quản Trị</span>
+            <h2>Hải Sản Làng Chài</h2>
           </div>
+          <button
+            className="admin-mobile-close-btn"
+            onClick={() => setIsMobileSidebarOpen(false)}
+            aria-label="Đóng menu"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="admin-nav-menu">
           <button
             className={`admin-nav-item ${activeTab === 'stats' ? 'active' : ''}`}
-            onClick={() => setActiveTab('stats')}
+            onClick={() => {
+              setActiveTab('stats');
+              setIsMobileSidebarOpen(false);
+            }}
+            title="Thống kê tổng quan"
           >
             <PieChart size={20} />
             <span>Thống kê tổng quan</span>
@@ -296,7 +326,11 @@ export const AdminPage = ({
 
           <button
             className={`admin-nav-item ${activeTab === 'products' ? 'active' : ''}`}
-            onClick={() => setActiveTab('products')}
+            onClick={() => {
+              setActiveTab('products');
+              setIsMobileSidebarOpen(false);
+            }}
+            title="Danh sách sản phẩm"
           >
             <Package size={20} />
             <span>Danh sách sản phẩm</span>
@@ -304,7 +338,11 @@ export const AdminPage = ({
 
           <button
             className={`admin-nav-item ${activeTab === 'categories' ? 'active' : ''}`}
-            onClick={() => setActiveTab('categories')}
+            onClick={() => {
+              setActiveTab('categories');
+              setIsMobileSidebarOpen(false);
+            }}
+            title="Danh mục sản phẩm"
           >
             <FolderTree size={20} />
             <span>Danh mục sản phẩm</span>
@@ -315,6 +353,7 @@ export const AdminPage = ({
           <button
             className="back-home-btn"
             onClick={() => onNavigateHome && onNavigateHome('#trang-chu')}
+            title="Quay lại trang chủ"
           >
             <Home size={18} />
             <span>Quay lại trang chủ</span>
@@ -324,6 +363,7 @@ export const AdminPage = ({
               className="back-home-btn logout"
               onClick={onLogout}
               style={{ marginTop: '8px', color: '#ef4444' }}
+              title="Đăng xuất Admin"
             >
               <LogOut size={18} />
               <span>Đăng xuất Admin</span>
@@ -336,11 +376,20 @@ export const AdminPage = ({
       <main className="admin-main-content">
         {/* TOP BAR */}
         <header className="admin-top-bar">
-          <h1 className="admin-page-title">
-            {activeTab === 'stats' && 'Thống kê sản phẩm'}
-            {activeTab === 'products' && 'Quản lý sản phẩm'}
-            {activeTab === 'categories' && 'Quản lý danh mục sản phẩm'}
-          </h1>
+          <div className="admin-top-bar-left">
+            <button
+              className="admin-mobile-menu-toggle"
+              onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+              aria-label="Toggle Navigation"
+            >
+              {isMobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <h1 className="admin-page-title">
+              {activeTab === 'stats' && 'Thống kê sản phẩm'}
+              {activeTab === 'products' && 'Quản lý sản phẩm'}
+              {activeTab === 'categories' && 'Quản lý danh mục sản phẩm'}
+            </h1>
+          </div>
           <span className="admin-user-badge">Admin System</span>
         </header>
 

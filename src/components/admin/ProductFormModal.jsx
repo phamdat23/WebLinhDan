@@ -55,9 +55,14 @@ export const ProductFormModal = ({
         existingImages = ['https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'];
       }
 
+      // Determine valid initial category: use editingProduct.category if it exists in list, else default to first item
+      const initialCat = (editingProduct.category && safeCategories.includes(editingProduct.category))
+        ? editingProduct.category
+        : (safeCategories[0] || 'Hạt dinh dưỡng');
+
       setFormData({
         name: editingProduct.name || '',
-        category: editingProduct.category || safeCategories[0] || 'Hạt dinh dưỡng',
+        category: initialCat,
         weight: editingProduct.weight || 'Gói 250g / 500g',
         status: editingProduct.status || 'Còn hàng',
         tags: existingTags,
@@ -77,7 +82,7 @@ export const ProductFormModal = ({
     }
     setNewImageUrl('');
     setErrors({});
-  }, [editingProduct, isOpen]);
+  }, [editingProduct, isOpen, safeCategories]);
 
   if (!isOpen) return null;
 
@@ -199,12 +204,36 @@ export const ProductFormModal = ({
       ? formData.images
       : ['https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=600&q=80'];
 
+    // Check if form data has actually changed compared to editingProduct
+    if (editingProduct) {
+      const origTags = Array.isArray(editingProduct.tags) ? editingProduct.tags : [];
+      const origImages = Array.isArray(editingProduct.images) && editingProduct.images.length > 0
+        ? editingProduct.images
+        : (editingProduct.image ? [editingProduct.image] : []);
+
+      const isNameSame = (editingProduct.name || '') === formData.name.trim();
+      const isCategorySame = (editingProduct.category || safeCategories[0] || 'Hạt dinh dưỡng') === formData.category;
+      const isWeightSame = (editingProduct.weight || '') === formData.weight.trim();
+      const isStatusSame = (editingProduct.status || 'Còn hàng') === formData.status;
+      const isDescSame = (editingProduct.description || '') === (formData.description || '').trim();
+      const isTagsSame = JSON.stringify(origTags.sort()) === JSON.stringify([...formData.tags].sort());
+      const isImagesSame = JSON.stringify(origImages) === JSON.stringify(finalImages);
+
+      if (isNameSame && isCategorySame && isWeightSame && isStatusSame && isDescSame && isTagsSame && isImagesSame) {
+        console.log('ℹ️ [Form Modal] No changes detected. Closing modal without saving.');
+        onClose();
+        return;
+      }
+    }
+
     const payload = {
       ...editingProduct,
       ...formData,
+      name: formData.name.trim(),
+      weight: formData.weight.trim(),
       images: finalImages,
       image: finalImages[0], // preserving single image backward compatibility
-      description: formData.description || '',
+      description: (formData.description || '').trim(),
     };
 
     console.log('🚀 [Form Modal] Closing dialog instantly and executing onSave payload...');

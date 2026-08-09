@@ -2,22 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingBag, ArrowRight, ShieldCheck, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import './HeroSection.css';
 
+import banner1 from '../../assets/images/img_banner_1.jpg';
+import banner2 from '../../assets/images/img_banner_2.jpg';
+import banner3 from '../../assets/images/img_banner_3.jpg';
+import banner4 from '../../assets/images/img_banner_4.jpg';
+import banner5 from '../../assets/images/img_banner_5.jpg';
+import banner6 from '../../assets/images/img_banner_6.jpg';
+
 const DEFAULT_BANNER_SLIDES = [
-  {
-    id: 1,
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80',
-    title: 'Nông Sản Tươi Clean & Organic',
-  },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=1200&q=80',
-    title: 'Trái Cây Sấy & Hạt Dinh Dưỡng Cao Cấp',
-  },
-  {
-    id: 3,
-    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80',
-    title: 'Đặc Sản Vùng Miền Đảm Bảo An Toàn',
-  },
+  { id: 1, image: banner1, title: '' },
+  { id: 2, image: banner2, title: '' },
+  { id: 3, image: banner3, title: '' },
+  { id: 4, image: banner4, title: '' },
+  { id: 5, image: banner5, title: '' },
+  { id: 6, image: banner6, title: '' },
 ];
 
 export const HeroSection = ({ onExploreProducts, bannerImages = [] }) => {
@@ -25,12 +23,12 @@ export const HeroSection = ({ onExploreProducts, bannerImages = [] }) => {
     if (Array.isArray(bannerImages) && bannerImages.length > 0) {
       return bannerImages.map((item, idx) => {
         if (typeof item === 'string') {
-          return { id: idx + 1, image: item, title: `Nông sản xanh #${idx + 1}` };
+          return { id: idx + 1, image: item, title: `Hải sản làng chài #${idx + 1}` };
         }
         return {
           id: item.id || idx + 1,
           image: item.image || item.url || '',
-          title: item.title || item.name || `Nông sản xanh #${idx + 1}`,
+          title: item.title || item.name || `Hải sản làng chài #${idx + 1}`,
         };
       });
     }
@@ -65,10 +63,10 @@ export const HeroSection = ({ onExploreProducts, bannerImages = [] }) => {
           {/* Left Text Content */}
           <div className="hero-content">
             <h1 className="hero-title">
-              Nông Sản Sạch & <span className="hero-title-highlight">Bổ Dưỡng</span> Cho Gia Đình Bạn
+               <span className="hero-title-highlight">Hải sản Làng Chài Nga Doãn </span>- Mang Vị Biển Sầm Sơn Về Bữa Cơm Nhà
             </h1>
             <p className="hero-description">
-              Chuyên cung cấp các loại hạt dinh dưỡng, trái cây sấy khô, trà cà phê và nông sản đặc sản vùng miền chính hiệu. Cam kết chất lượng 100% tự nhiên.
+              Tươi mới mỗi ngày từ biển Sầm Sơn. Đa dạng tôm, cua, ghẹ, cá, mực, ốc, ngao…luôn phong phú theo mùa được chọn kỹ từ độ tươi đến chất lượng. Ngoài ra còn có nước mắm, mắm chua và các loại mắm đặc sản cho bữa cơm thêm đậm vị biển.
             </p>
             <div className="hero-cta-group">
               <a

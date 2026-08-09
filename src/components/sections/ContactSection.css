@@ -146,6 +146,34 @@
   gap: 2px;
 }
 
+.phone-links-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.phone-single-link {
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.phone-single-link:hover {
+  background-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.phone-separator {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
 .info-label {
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.8);

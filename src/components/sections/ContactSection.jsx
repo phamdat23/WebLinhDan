@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, MapPin, ExternalLink } from 'lucide-react';
+import { Phone, MapPin, ExternalLink } from 'lucide-react';
 import {
   CONTACT_INFO,
   getGoogleMapEmbedUrl,
@@ -62,24 +62,36 @@ export const ContactSection = () => {
                   </div>
                 </a>
 
-                {/* Item 2: Số điện thoại -> Mở Zalo tab mới */}
-                <a
-                  href={zaloUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="contact-info-item clickable-item"
-                  title="Click để chat Zalo hoặc gọi ngay"
-                >
+                {/* Item 2: Số điện thoại / Zalo gộp chung 1 Box */}
+                <div className="contact-info-item">
                   <div className="contact-icon-box zalo-icon-box">
                     <Phone className="contact-icon" size={22} />
                   </div>
                   <div className="contact-info-detail">
-                    <span className="info-label">
-                      Số điện thoại / Zalo <ExternalLink size={12} className="link-icon-inline" />
-                    </span>
-                    <span className="info-value-link">{CONTACT_INFO.phone}</span>
+                    <span className="info-label">Số điện thoại / Zalo</span>
+                    <div className="phone-links-group">
+                      <a
+                        href={CONTACT_INFO.zaloUrl1 || getZaloUrl(CONTACT_INFO.phone1)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="info-value-link phone-single-link"
+                        title={`Click để chat Zalo ngay với ${CONTACT_INFO.phone1}`}
+                      >
+                        {CONTACT_INFO.phone1} <ExternalLink size={12} className="link-icon-inline" />
+                      </a>
+                      <span className="phone-separator">•</span>
+                      <a
+                        href={CONTACT_INFO.zaloUrl2 || getZaloUrl(CONTACT_INFO.phone2)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="info-value-link phone-single-link"
+                        title={`Click để chat Zalo ngay với ${CONTACT_INFO.phone2}`}
+                      >
+                        {CONTACT_INFO.phone2} <ExternalLink size={12} className="link-icon-inline" />
+                      </a>
+                    </div>
                   </div>
-                </a>
+                </div>
 
                 {/* Item 3: Facebook -> Mở Facebook tab mới */}
                 <a
@@ -97,21 +109,6 @@ export const ContactSection = () => {
                       Facebook Fanpage <ExternalLink size={12} className="link-icon-inline" />
                     </span>
                     <span className="info-value-link">{CONTACT_INFO.facebookName}</span>
-                  </div>
-                </a>
-
-                {/* Item 4: Email hỗ trợ */}
-                <a
-                  href={`mailto:${CONTACT_INFO.email}`}
-                  className="contact-info-item clickable-item"
-                  title="Gửi Email phản hồi"
-                >
-                  <div className="contact-icon-box email-icon-box">
-                    <Mail className="contact-icon" size={22} />
-                  </div>
-                  <div className="contact-info-detail">
-                    <span className="info-label">Email hỗ trợ</span>
-                    <span className="info-value-link">{CONTACT_INFO.email}</span>
                   </div>
                 </a>
               </div>

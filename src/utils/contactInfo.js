@@ -1,50 +1,52 @@
 // File Cấu hình thông tin liên hệ tập trung (Địa chỉ, Số điện thoại, Facebook, Zalo, Google Maps)
 // Bạn có thể dễ dàng thay đổi tất cả các giá trị tại đây mà không cần sửa code giao diện
 
-const defaultAddress = 'Số 2B Đường Phạm Hùng, Cầu Giấy, Hà Nội';
-const defaultPhone = '0988 123 456';
+const defaultAddress = '60 QL279D, Mường La, Sơn La, Việt Nam';
+const defaultPhone1 = '0982 051 975';
+const defaultPhone2 = '0978 213 067';
 
 export const CONTACT_INFO = {
-  brandName: 'Nông Sản Xanh',
+  brandName: 'Hải Sản Làng Chài-Nga Doãn',
 
   // 1. Số điện thoại & Zalo
-  phone: defaultPhone,
-  // Link mở Zalo (nếu để rỗng tự sinh từ số điện thoại)
-  zaloUrl: 'https://zalo.me/0988123456',
+  phone1: defaultPhone1,
+  phone2: defaultPhone2,
+  phone: defaultPhone1, // Fallback
+
+  zaloUrl1: 'https://zalo.me/0982051975',
+  zaloUrl2: 'https://zalo.me/0978213067',
+  zaloUrl: 'https://zalo.me/0982051975', // Fallback
 
   // 2. Facebook
-  facebookName: 'Nông Sản Xanh - Thực Phẩm Sạch',
-  facebookUrl: 'https://facebook.com/nongsanxanh.official',
+  facebookName: 'Hải Sản Làng Chài-Nga Doãn',
+  facebookUrl: 'https://www.facebook.com/profile.php?id=61593230153765',
 
   // 3. Địa chỉ & Google Maps
   address: defaultAddress,
-  // Link mở Google Maps trong tab mới khi người dùng click vào địa chỉ
-  googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(defaultAddress)}`,
 
-  // 4. Email & Giờ làm việc
-  email: 'info@nongsanxanh.vn',
-  workHours: '8:00 - 20:00 (Thứ 2 - Chủ Nhật)',
-
-  // Link iframe nhúng bản đồ vị trí (Tự động ghim Marker Red Pin & thông tin thẻ giống như Google Maps)
-  // Bạn cũng có thể dán trực tiếp link src từ Google Maps -> Chia sẻ -> Nhúng bản đồ vào đây!
-  mapEmbedUrl: `https://maps.google.com/maps?q=${encodeURIComponent(defaultAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`,
+  // Link iframe nhúng bản đồ vị trí (Tự động ghim Marker Red Pin & thông tin thẻ địa chỉ)
+  // Khi bạn đổi địa chỉ ở biến defaultAddress hoặc address, bản đồ sẽ tự ghim Marker tại địa chỉ mới.
+  // Nếu bạn muốn dán link iframe tùy chỉnh lấy từ Google Maps (Chia sẻ -> Nhúng bản đồ), dán vào customMapEmbedUrl bên dưới:
+  customMapEmbedUrl: '',
 };
 
 // Hàm hỗ trợ tự động tạo link Google Maps tìm kiếm từ địa chỉ
 export const getGoogleMapsSearchUrl = (queryAddress) => {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryAddress || defaultAddress)}`;
+  const addr = queryAddress || CONTACT_INFO.address || defaultAddress;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
 };
 
 // Hàm hỗ trợ tự động tạo link Zalo từ số điện thoại
 export const getZaloUrl = (phoneNumber) => {
-  const cleanPhone = (phoneNumber || defaultPhone).replace(/\D/g, '');
+  const cleanPhone = (phoneNumber || defaultPhone1).replace(/\D/g, '');
   return `https://zalo.me/${cleanPhone}`;
 };
 
-// Hàm hỗ trợ tạo link nhúng iframe Google Map tự động có Ghim Marker ghim sẵn địa chỉ
+// Hàm hỗ trợ tạo link nhúng iframe Google Map tự động có Ghim Marker Đỏ (Red Pin) chắc chắn hiển thị
 export const getGoogleMapEmbedUrl = (queryAddress) => {
-  if (!queryAddress || queryAddress === defaultAddress) {
-    return CONTACT_INFO.mapEmbedUrl;
+  if (CONTACT_INFO.customMapEmbedUrl && (!queryAddress || queryAddress === CONTACT_INFO.address)) {
+    return CONTACT_INFO.customMapEmbedUrl;
   }
-  return `https://maps.google.com/maps?q=${encodeURIComponent(queryAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+  const addr = queryAddress || CONTACT_INFO.address || defaultAddress;
+  return `https://maps.google.com/maps?q=${encodeURIComponent(addr)}&t=&z=16&ie=UTF8&iwloc=near&output=embed`;
 };

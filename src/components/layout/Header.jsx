@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Leaf, Menu, X, Search } from 'lucide-react';
 import { checkAdminAccessByIP } from '../../firebase';
+import logoWeb from '../../assets/images/logo_web.jpg';
 import './Header.css';
 
 export const Header = ({ onNavigateHome, onNavigateProducts, onNavigateAdmin, onRequestAdminLogin, activePage = 'home' }) => {
@@ -174,12 +175,10 @@ export const Header = ({ onNavigateHome, onNavigateProducts, onNavigateAdmin, on
             if (onNavigateHome) onNavigateHome('#trang-chu');
           }}
         >
-          <div className="logo-icon-wrapper">
-            <Leaf className="logo-icon" />
-          </div>
+          <img src={logoWeb} alt="Logo" className="brand-logo-img" />
           <div className="logo-text-group">
-            <span className="brand-title">Nông Sản Xanh</span>
-            <span className="brand-subtitle">Chất lượng từ thiên nhiên</span>
+            <span className="brand-title">Hải Sản Làng Chài</span>
+            <span className="brand-subtitle"></span>
           </div>
         </a>
 
