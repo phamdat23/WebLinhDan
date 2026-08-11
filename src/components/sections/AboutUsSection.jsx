@@ -47,7 +47,7 @@ export const AboutUsSection = () => {
     },
     {
       id: 3,
-      value: '30+',
+      value: '50+',
       label: 'Sản phẩm đa dạng',
       icon: <PackageCheck size={22} />,
     },
