@@ -7,7 +7,7 @@ import aboutImg2 from '../../assets/images/img_about_2.jpg';
 import aboutImg3 from '../../assets/images/img_about_3.jpg';
 import aboutImg4 from '../../assets/images/img_about_4.jpg';
 import aboutImg5 from '../../assets/images/img_about_5.jpg';
-import aboutImg6 from '../../assets/images/img_about_6.jpg';
+import aboutImg6 from '../../assets/images/img_about_8.jpg';
 import aboutImg7 from '../../assets/images/img_about_7.JPG';
 
 const ABOUT_IMAGES = [

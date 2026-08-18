@@ -20,7 +20,7 @@ export const CONTACT_INFO = {
   // 2. Facebook
   facebookName: 'Hải Sản Làng Chài-Nga Doãn',
   facebookUrl: 'https://www.facebook.com/profile.php?id=61593230153765',
-  facebookName2: 'Nguyên Nga',
+  facebookName2: 'Nguyễn Nga',
   facebookUrl2: 'https://www.facebook.com/share/1EZULNnMF3/?mibextid=wwXIfr',
 
   // 3. Địa chỉ & Google Maps

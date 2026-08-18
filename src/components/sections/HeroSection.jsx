@@ -8,6 +8,8 @@ import banner3 from '../../assets/images/img_banner_3.jpg';
 import banner4 from '../../assets/images/img_banner_4.jpg';
 import banner5 from '../../assets/images/img_banner_5.jpg';
 import banner6 from '../../assets/images/img_banner_6.jpg';
+import banner7 from '../../assets/images/img_banner_7.jpg';
+import banner8 from '../../assets/images/img_banner_8.jpg';
 
 const DEFAULT_BANNER_SLIDES = [
   { id: 1, image: banner1, title: '' },
@@ -16,6 +18,8 @@ const DEFAULT_BANNER_SLIDES = [
   { id: 4, image: banner4, title: '' },
   { id: 5, image: banner5, title: '' },
   { id: 6, image: banner6, title: '' },
+  { id: 7, image: banner7, title: '' },
+  { id: 8, image: banner8, title: '' },
 ];
 
 export const HeroSection = ({ onExploreProducts, bannerImages = [] }) => {
