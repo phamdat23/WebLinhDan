@@ -17,9 +17,9 @@ const DEFAULT_BANNER_SLIDES = [
   { id: 3, image: banner3, title: '' },
   { id: 4, image: banner4, title: '' },
   { id: 5, image: banner5, title: '' },
-  { id: 6, image: banner6, title: '' },
-  { id: 7, image: banner7, title: '' },
-  { id: 8, image: banner8, title: '' },
+  { id: 6, image: banner6, title: '' , fullDisplay: true},
+  { id: 7, image: banner7, title: '' , fullDisplay: true},
+  { id: 8, image: banner8, title: '', fullDisplay: true },
 ];
 
 export const HeroSection = ({ onExploreProducts, bannerImages = [] }) => {
@@ -115,7 +115,11 @@ export const HeroSection = ({ onExploreProducts, bannerImages = [] }) => {
               >
                 {slides.map((slide) => (
                   <div key={slide.id} className="hero-slide-item">
-                    <img src={slide.image} alt={slide.title} className="hero-main-img" />
+                    <img
+                      src={slide.image}
+                      alt={slide.title}
+                      className={`hero-main-img${slide.fullDisplay ? ' hero-main-img--portrait' : ''}`}
+                    />
                     {slide.title && <div className="hero-slide-caption">{slide.title}</div>}
                   </div>
                 ))}
